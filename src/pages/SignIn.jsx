@@ -8,6 +8,7 @@
     import { MdAgriculture } from "react-icons/md";
     import { GiWheat } from "react-icons/gi";
     import { useAuth } from "../context/AuthContext";
+    import GoogleSignInButton from "../components/GoogleSignInButton";
 
 
 
@@ -58,7 +59,7 @@
 
         const SignIn = () => {
             const navigate = useNavigate();
-            const {login} = useAuth();
+            const {login, loginGoogle} = useAuth();
             
             const [formData, setFormData] = useState({
                 email: "",
@@ -98,7 +99,7 @@
                 if(loginError) setLoginError("");
             };
 
-            const handleSubmit = (e) => {
+            const handleSubmit = async (e) => {
                 e.preventDefault();
                 const validationErrors = validate();
                 if(Object.keys(validationErrors).length > 0) {
@@ -109,22 +110,31 @@
                 setIsSubmitting(true);
                 setLoginError("");
 
+                const result = await login(formData.email, formData.password);
 
-                setTimeout(() => {
-                    const result    = login(formData.email, formData.password);
-
-                    if(result.success) {
-                        setIsSubmitting(false);
-                        setIsSuccess(true);
-                        setTimeout(() => navigate("/dashboard", {replace: true}), 2000);
-                    }
-                    else {
-                        setIsSubmitting(false);
-                        setLoginError("Invalid email or password, Please try again.");
-                    }
-                }, 1500);
-                
+                if(result.success) {
+                    setIsSubmitting(false);
+                    setIsSuccess(true);
+                    setTimeout(() => navigate("/dashboard", {replace: true}), 2000);
+                }
+                else {
+                    setIsSubmitting(false);
+                    setLoginError(result.error || "Invalid email or password, Please try again.");
+                }
             };
+
+            /* Google Sign-In handlers */
+
+            const handleGoogleSuccess = async (googleProfile) => {
+                const result = await loginGoogle(googleProfile);
+                if (result.success) {
+                    navigate("/dashboard", { replace: true });
+                } else {
+                    setLoginError(result.error || "Google sign-in failed. Please try again.");
+                }
+            };
+
+            const handleGoogleError = (message) => setLoginError(message);
             
 
             /* Success Screen */
@@ -278,11 +288,20 @@
                                 </p>
                             </div>
 
+                            {/* Google Sign In */}
+                            <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
+
+                            <div className="flex items-center gap-3 my-6 max-w-lg">
+                                <div className="flex-1 h-px bg-gray-200" />
+                                <span className="text-xs text-gray-400 font-medium">OR CONTINUE WITH EMAIL</span>
+                                <div className="flex-1 h-px bg-gray-200" />
+                            </div>
+
                             {/* Global Login Error */}
 
                             {loginError && (
                                 <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600
-                                text-sm px-4 py-3 rounded-xl mb-5">
+                                text-sm px-4 py-3 rounded-xl mb-5 max-w-lg">
                                     <FaTimesCircle className="flex-shrink-0" />
                                     {loginError}
                                 </div>
@@ -396,6 +415,7 @@
                     
 
                 
+
             
         );
 

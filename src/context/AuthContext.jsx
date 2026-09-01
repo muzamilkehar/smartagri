@@ -1,4 +1,11 @@
     import { createContext, useContext, useState } from "react";
+    import { loginUser, registerUser, loginWithGoogle } from "../services/authApi";
+    
+    const loginGoogle = async (googleProfile) => {
+    const result = await loginWithGoogle(googleProfile);
+    if (result.success) setCurrentUser(result.user);
+    return result;
+};
 
 
     // create the context
@@ -19,8 +26,8 @@
             email: "user@smartagri.com",
             password: "User@123",
             role: "user",
-            firstName: "User",
-            lastName: "Muzamil Kehar"
+            firstName: "Muzamil",
+            lastName: "Kehar"
 
         }
     ];

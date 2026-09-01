@@ -7,6 +7,8 @@ import {FaUser, FaEnvelope, FaLock, FaEye, FaCheckCircle,
         FaEyeSlash} from "react-icons/fa";
 
 import {MdAgriculture} from "react-icons/md"
+import { useAuth } from "../context/AuthContext";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 
 
 
@@ -88,6 +90,7 @@ const InputField = ({
 
 const SignUp = () => {
     const navigate = useNavigate();
+    const { register, loginGoogle } = useAuth();
 
     const [formData, setFormData] = useState({
         fullName: "",
@@ -100,6 +103,7 @@ const SignUp = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [focusedPassword, setFocusPassword] = useState(false);
+    const [signupError, setSignupError] = useState("");
 
     const strength = getPasswordStrength(formData.password);
 
@@ -138,23 +142,45 @@ const SignUp = () => {
         if(errors[name]) setErrors((prev) => ({...prev, [name]: ""}));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const validateErrors = validate();
         if(Object.keys(validateErrors).length > 0){
-
             setErrors(validateErrors);
             return;
         }
-    
-        
+
         setIsSubmitting(true);
-        setTimeout(() => {
+        setSignupError("");
+
+        const result = await register({
+            fullName: formData.fullName.trim(),
+            email: formData.email.trim(),
+            password: formData.password
+        });
+
+        if (result.success) {
             setIsSubmitting(false);
             setIsSuccess(true);
-            setTimeout(() => navigate("/signin", {replace: true}), 2500)
-        }, 1500);
+            setTimeout(() => navigate("/signin", {replace: true}), 2500);
+        } else {
+            setIsSubmitting(false);
+            setSignupError(result.error || "Something went wrong. Please try again.");
+        }
     };
+
+    /* Google Sign-In handlers */
+
+    const handleGoogleSuccess = async (googleProfile) => {
+        const result = await loginGoogle(googleProfile);
+        if (result.success) {
+            navigate("/dashboard", { replace: true });
+        } else {
+            setSignupError(result.error || "Google sign-in failed. Please try again.");
+        }
+    };
+
+    const handleGoogleError = (message) => setSignupError(message);
     
 
     /* Success Screen */
@@ -291,6 +317,25 @@ const SignUp = () => {
                         </Link>
                     </p>
                 </div>
+
+                {/* Google Sign In */}
+                <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
+
+                <div className="flex items-center gap-3 my-6 max-w-lg">
+                    <div className="flex-1 h-px bg-gray-200" />
+                    <span className="text-xs text-gray-400 font-medium">OR CONTINUE WITH EMAIL</span>
+                    <div className="flex-1 h-px bg-gray-200" />
+                </div>
+
+                {/* Global Signup Error */}
+
+                {signupError && (
+                    <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600
+                    text-sm px-4 py-3 rounded-xl mb-5 max-w-lg">
+                        <FaTimesCircle className="flex-shrink-0" />
+                        {signupError}
+                    </div>
+                )}
 
                 {/* Form */}
                 
@@ -452,7 +497,7 @@ const SignUp = () => {
                                 Creating Account
                             </>
                         ): (
-                            "Create Account ->"
+                            "Create Account"
                         )}
                     </button>
                 </form>
