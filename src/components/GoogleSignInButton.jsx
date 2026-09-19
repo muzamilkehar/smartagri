@@ -1,9 +1,5 @@
 import { useEffect, useRef } from "react";
 
-// Decodes a JWT's payload WITHOUT verifying its signature.
-// Fine for reading name/email/picture to show in the UI right away —
-// but a real backend must still verify the token's signature with
-// Google's servers before trusting it for anything security-sensitive.
 const decodeJwt = (token) => {
     try {
         const payload = token.split(".")[1];
