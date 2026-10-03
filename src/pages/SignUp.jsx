@@ -162,7 +162,7 @@ const SignUp = () => {
         if (result.success) {
             setIsSubmitting(false);
             setIsSuccess(true);
-            setTimeout(() => navigate("/signin", {replace: true}), 2500);
+            setTimeout(() => navigate("/dashboard", {replace: true}), 2500);
         } else {
             setIsSubmitting(false);
             setSignupError(result.error || "Something went wrong. Please try again.");

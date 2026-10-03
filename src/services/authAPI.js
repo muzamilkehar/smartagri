@@ -1,30 +1,5 @@
-// src/services/authAPI.js
-//
-// ── REAL BACKEND CONTRACT (KisanAI, deployed) ─────────────────────────────
-// Base URL: import.meta.env.VITE_API_BASE_URL
-//
-// POST /auth/signup   body: { fullName, email, password }
-//   -> 201 { success: true, user: {...}, accessToken }
-//   -> 409 { success: false, message: "User already exist with this email." }
-//   -> 400 { errors: { field: [msg] } }
-//
-// POST /auth/signin   body: { email, password }
-//   -> 200 { success: true, user: {...}, accessToken }
-//   -> 401 { success: false, message: "Email or Password is invalid!" }
-//
-// POST /auth/google   body: { idToken }
-//   -> 200 { success: true, user: {...}, accessToken }
-//
-// POST /auth/logout     (authenticated) -> revokes refresh token, clears cookies
-// GET  /farmer/account  (FARMER only)   -> { success, data: {...} }
-// GET  /admin/account   (ADMIN only)    -> { success, data: {...} }
-//
-// Auth is cookie-based (access_token / refresh_token, httpOnly) — apiClient
-// sends them automatically via withCredentials, and auto-refreshes an
-// expired access token, retrying the request once.
-// ───────────────────────────────────────────────────────────────────────
-
 import { apiClient } from "./apiClient";
+import { readErrorMessage } from "./apiError";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const USE_MOCK = !BASE_URL; // no backend URL set -> fall back to mock data
@@ -35,22 +10,14 @@ const ROLE_HINT_KEY = "kisanai_role_hint";
 const setRoleHint = (role) => localStorage.setItem(ROLE_HINT_KEY, role);
 const clearRoleHint = () => localStorage.removeItem(ROLE_HINT_KEY);
 
-// The rest of the app only ever sees this shape, whether the data came
-// from the real backend or the mock — role is lowercased to match the
-// "admin" / "user" checks already used throughout the dashboard.
 const normalizeUser = (apiUser) => ({
     id: apiUser.id,
     fullName: apiUser.fullName,
     email: apiUser.email,
     role: apiUser.role === "ADMIN" ? "admin" : "user",
-    photoURL: apiUser.profileImageUrl || null
+    photoURL: apiUser.profileImageUrl || null,
+    city: apiUser.farmer?.city || ""
 });
-
-const readErrorMessage = (error) => {
-    const data = error.response?.data;
-    const firstFieldError = data?.errors && Object.values(data.errors)[0]?.[0];
-    return data?.message || firstFieldError || "Could not reach the server. Please try again.";
-};
 
 // ---- mock/demo accounts, used only while USE_MOCK is true ----
 let mockUsers = [
@@ -77,7 +44,7 @@ export const loginUser = async (email, password) => {
         setRoleHint(user.role);
         return { success: true, user, token: res.data.accessToken };
     } catch (error) {
-        return { success: false, error: readErrorMessage(error) };
+        return { success: false, error: readErrorMessage(error, "Could not reach the server. Please try again.") };
     }
 };
 
@@ -99,7 +66,7 @@ export const registerUser = async ({ fullName, email, password }) => {
         setRoleHint(user.role);
         return { success: true, user, token: res.data.accessToken };
     } catch (error) {
-        return { success: false, error: readErrorMessage(error) };
+        return { success: false, error: readErrorMessage(error, "Could not reach the server. Please try again.") };
     }
 };
 
@@ -121,14 +88,10 @@ export const loginWithGoogle = async ({ credential, fullName, email, photoURL })
         setRoleHint(user.role);
         return { success: true, user, token: res.data.accessToken };
     } catch (error) {
-        return { success: false, error: readErrorMessage(error) };
+        return { success: false, error: readErrorMessage(error, "Google sign-in failed. Please try again.") };
     }
 };
 
-// Restores a session after a page refresh. The tokens live in httpOnly
-// cookies we can't read from JS — the role hint just tells us which
-// "who am I" endpoint to call; the cookie (sent automatically by
-// apiClient) is what actually authenticates the request.
 export const getCurrentUser = async () => {
     if (USE_MOCK) return { success: false };
 

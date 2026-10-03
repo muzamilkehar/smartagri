@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { loginUser, registerUser, loginWithGoogle, getCurrentUser, logoutUser } from "../services/authAPI";
+import { updateFarmerCity } from "../services/farmerAPI";
 
 const AuthContext = createContext(null);
 
@@ -7,8 +8,6 @@ export const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [authLoading, setAuthLoading] = useState(true);
 
-    // On app load, try to restore a session from the backend's httpOnly
-    // auth cookie (mock mode just resolves immediately with no user).
     useEffect(() => {
         (async () => {
             const result = await getCurrentUser();
@@ -35,6 +34,12 @@ export const AuthProvider = ({ children }) => {
         return result;
     };
 
+    const updateProfile = async (city) => {
+        const result = await updateFarmerCity(city);
+        if (result.success) setCurrentUser((prev) => ({ ...prev, ...result.user }));
+        return result;
+    };
+
     const logout = async () => {
         await logoutUser();
         setCurrentUser(null);
@@ -46,7 +51,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={{
-            currentUser, authLoading, login, register, loginGoogle, logout, isAdmin, isUser, isLoggedIn
+            currentUser, authLoading, login, register, loginGoogle, logout, updateProfile, isAdmin, isUser, isLoggedIn
         }}>
             {children}
         </AuthContext.Provider>

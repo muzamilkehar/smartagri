@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GiPlantSeed } from "react-icons/gi"; 
 
 import { MdDashboard, MdOutlineImageSearch, MdWaterDrop,
-        MdWbSunny,  MdPerson, MdMenu, MdClose, MdPeople
+        MdWbSunny,  MdPerson, MdMenu, MdClose, MdPeople,
+        MdTerrain
  } from "react-icons/md";
 
  import { GiWheat } from "react-icons/gi";
@@ -21,6 +22,7 @@ import { MdDashboard, MdOutlineImageSearch, MdWaterDrop,
 
     const navItems = [
         { label: "Dashboard",        icon: <MdDashboard />,          path: "/dashboard",         roles: ["admin", "user"] },
+        { label: "My Fields",        icon: <MdTerrain />,            path: "/dashboard/fields",   roles: ["user"] },
         { label: "Disease Detection",icon: <MdOutlineImageSearch />,  path: "/dashboard/disease", roles: ["admin", "user"] },
         { label: "Yield Prediction", icon: <GiWheat />,              path: "/dashboard/yield",   roles: ["admin", "user"] },
         { label: "Soil Monitoring",  icon: <MdWaterDrop />,          path: "/dashboard/soil",    roles: ["admin", "user"] },
@@ -33,7 +35,7 @@ import { MdDashboard, MdOutlineImageSearch, MdWaterDrop,
     const visibleItems = navItems.filter((item) =>
     item.roles.includes(currentUser?.role) );
 
-    const handleLogout = async() => {
+    const handleLogout = async () => {
         await logout();
         navigate("/signin", {replace: true});
     };

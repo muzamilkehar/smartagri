@@ -6,6 +6,7 @@
   import ForgotPassword from "./pages/ForgotPassword"
   import DashboardLayout from "./dashboard/DashboardLayout";
   import DashboardHome from "./dashboard/DashboardHome";
+  import Fields from "./dashboard/Fields";
   import Disease from "./dashboard/Disease";
   import Yield from "./dashboard/Yield";
   import Soil from "./dashboard/Soil";
@@ -52,6 +53,12 @@
             <Route  path="/dashboard" element={
               <ProtectedRoute>
                 <DashboardLayout><DashboardHome /> </DashboardLayout>
+              </ProtectedRoute>
+            }/>
+
+            <Route path="/dashboard/fields" element= {
+              <ProtectedRoute>
+                <DashboardLayout><Fields /></DashboardLayout>
               </ProtectedRoute>
             }/>
 
