@@ -33,8 +33,8 @@ import { MdDashboard, MdOutlineImageSearch, MdWaterDrop,
     const visibleItems = navItems.filter((item) =>
     item.roles.includes(currentUser?.role) );
 
-    const handleLogout = () => {
-        logout();
+    const handleLogout = async() => {
+        await logout();
         navigate("/signin", {replace: true});
     };
 

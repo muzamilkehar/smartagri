@@ -101,7 +101,7 @@ const TeamSection = () => {
                         e.target.style.display = "none";
                         e.target.nextSibling.style.display = "flex";
                        }}
-                       className="w-24 h-24 rounded-full bg-gradient-to-br shadow-lg  ring-4 ring-primary-100
+                       className="w-26 h-26 rounded-full bg-gradient-to-br shadow-lg  ring-4 ring-primary-100
                        group-hover:ring-primary-300 transition-all duration-300"
                        />
                         ): null}
@@ -117,11 +117,6 @@ const TeamSection = () => {
                             {member.initials}
                         </span>
                         </div>
-
-                        {/* Online Dot */}
-                        <div className="absolute bottom-0 right-1 w-5 h-5 bg-green-400 rounded-full border-2
-                        border-white" />
-
                      </div>
                         
                     {/*Name */}
