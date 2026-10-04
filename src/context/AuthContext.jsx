@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { loginUser, registerUser, loginWithGoogle, getCurrentUser, logoutUser } from "../services/authAPI";
-import { updateFarmerCity } from "../services/farmerAPI";
+import { updateFarmerCity, updateFarmerPhoto, removeFarmerPhoto } from "../services/farmerAPI";
+import { updateAdminAccount, updateAdminPhoto, removeAdminPhoto } from "../services/adminAPI";
+import { toastInfo } from "../utils/toast";
 
 const AuthContext = createContext(null);
 
@@ -40,18 +42,66 @@ export const AuthProvider = ({ children }) => {
         return result;
     };
 
+    const updateAdmin = async (payload) => {
+        const result = await updateAdminAccount(payload);
+        if (result.success) setCurrentUser((prev) => ({ ...prev, ...result.user }));
+        return result;
+    };
+
+    const updatePhoto = async (blobOrFile) => {
+        const result = currentUser?.role === "admin"
+            ? await updateAdminPhoto(blobOrFile)
+            : await updateFarmerPhoto(blobOrFile);
+        if (result.success) setCurrentUser((prev) => ({ ...prev, ...result.user }));
+        return result;
+    };
+
+    const removePhoto = async () => {
+        const result = currentUser?.role === "admin"
+            ? await removeAdminPhoto()
+            : await removeFarmerPhoto();
+        if (result.success) setCurrentUser((prev) => ({ ...prev, photoURL: null }));
+        return result;
+    };
+
+    /* Re-fetch current user — used after email verification to sync isEmailVerified */
+    const refreshUser = async () => {
+        const result = await getCurrentUser();
+        if (result.success) {
+            setCurrentUser(result.user);
+            return { success: true, user: result.user };
+        }
+        return { success: false };
+    };
+
     const logout = async () => {
         await logoutUser();
         setCurrentUser(null);
+        toastInfo("You've been signed out.");
     };
 
     const isAdmin = currentUser?.role === "admin";
-    const isUser = currentUser?.role === "user";
+    const isFarmer = currentUser?.role === "farmer";
+    const isUser = isFarmer;
     const isLoggedIn = !!currentUser;
 
     return (
         <AuthContext.Provider value={{
-            currentUser, authLoading, login, register, loginGoogle, logout, updateProfile, isAdmin, isUser, isLoggedIn
+            currentUser,
+            authLoading,
+            login,
+            register,
+            loginGoogle,
+            logout,
+            updateProfile,
+            updateAdmin,
+            updatePhoto,
+            removePhoto,
+            refreshUser,
+            isAdmin,
+            isFarmer,
+            isUser,
+            isLoggedIn
         }}>
             {children}
         </AuthContext.Provider>

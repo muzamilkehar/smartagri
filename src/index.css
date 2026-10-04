@@ -18,3 +18,35 @@ html {
 body {
   font-family: 'Inter', sans-serif;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* react-toastify — match SmartAgri theme */
+:root {
+  --toastify-color-success: #16a34a;
+  --toastify-color-error: #dc2626;
+  --toastify-color-info: #0284c7;
+  --toastify-color-warning: #d97706;
+  --toastify-font-family: 'Inter', sans-serif;
+  --toastify-toast-bd-radius: 12px;
+  --toastify-toast-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+}

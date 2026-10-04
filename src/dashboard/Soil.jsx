@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { MdAdd, MdEdit, MdDelete, MdClose, MdTerrain, MdScience } from "react-icons/md";
 import { getFields } from "../services/fieldAPI";
 import { addSoilData, getSoilDataForField, updateSoilData, deleteSoilData } from "../services/soilAPI";
+import { toastSuccess, toastError } from "../utils/toast";
 
 const emptyForm = { nitrogen: "", phosphorus: "", potassium: "", soilPH: "", soilMoisture: "", organicCarbon: "", recordedAt: "" };
 
@@ -138,9 +139,11 @@ const Soil = () => {
 
         if (result.success) {
             setShowModal(false);
+            toastSuccess(editingId ? "Soil Reading updated." : "Soil Reading added.");
             loadReadings(selectedFieldId);
         } else {
             setFormError(result.error);
+            toastError(result.error);
         }
     };
 
@@ -149,8 +152,9 @@ const Soil = () => {
         const result = await deleteSoilData(id);
         if (result.success) {
             setReadings((prev) => prev.filter((r) => r.id !== id));
+            toastSuccess("Soil Reading deleted.");
         } else {
-            alert(result.error);
+            toastError(result.error);
         }
     };
 

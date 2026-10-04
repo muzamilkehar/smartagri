@@ -47,3 +47,12 @@ export const deleteCrop = async (cropId) => {
         return { success: false, error: readErrorMessage(error, "Could not delete crop.") };
     }
 };
+
+export const deleteAllCropsForField = async (fieldId) => {
+    try {
+        const res = await apiClient.delete(`/crops/field/${fieldId}/all`);
+        return { success: true, deletedCount: res.data.deletedCount };
+    } catch (error) {
+        return { success: false, error: readErrorMessage(error, "Could not delete all crops.") };
+    }
+};

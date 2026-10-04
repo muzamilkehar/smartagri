@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { MdAdd, MdDelete, MdEdit, MdClose, MdSettings } from "react-icons/md";
 import { getSystemSettings, upsertSystemSetting, deleteSystemSetting } from "../services/adminManagementAPI";
+import { toastSuccess, toastError } from "../utils/toast";
 
 const inputClass = "w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 bg-gray-50 focus:bg-white";
 const labelClass = "text-xs font-medium text-gray-500 uppercase tracking-wide mb-1 block";
@@ -81,9 +82,11 @@ const SystemSettings = () => {
 
         if (result.success) {
             setShowModal(false);
+            toastSuccess(editingKey ? "Setting updated." : "Setting added.");
             load();
         } else {
             setFormError(result.error);
+            toastError(resule.error || "Could not save the setting. Please try again.");
         }
     };
 
@@ -92,8 +95,9 @@ const SystemSettings = () => {
         const result = await deleteSystemSetting(key);
         if (result.success) {
             setSettings((prev) => prev.filter((s) => s.key !== key));
+            toastSuccess("Setting deleted.");
         } else {
-            alert(result.error);
+            toastError(result.error || "Could not delete the setting. Please try again.");
         }
     };
 

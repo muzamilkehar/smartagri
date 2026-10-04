@@ -3,6 +3,7 @@ import { FaUser, FaUserShield, FaEnvelope, FaTrash, FaMapMarkerAlt, FaCheckCircl
 import { MdClose } from "react-icons/md";
 import { useAuth } from "../context/AuthContext";
 import { getAllFarmers, getFarmerDetails, deleteFarmer } from "../services/adminManagementAPI";
+import { toastSuccess, toastError } from "../utils/toast";
 
 const Users = () => {
     const { isAdmin } = useAuth();
@@ -30,7 +31,10 @@ const Users = () => {
         const result = await getFarmerDetails(farmerId);
         setLoadingDetails(false);
         if (result.success) setSelectedFarmer(result.farmer);
-        else { alert(result.error); setSelectedFarmer(null); }
+        else {
+            toastError(result.error || "Could not fetch farmer details. Please try again.");
+            setSelectedFarmer(null);
+        }
     };
 
     const handleDelete = async (farmerId, e) => {
@@ -40,8 +44,9 @@ const Users = () => {
         if (result.success) {
             setFarmers((prev) => prev.filter((f) => f.id !== farmerId));
             if (selectedFarmer?.id === farmerId) setSelectedFarmer(null);
+            toastSuccess("Farmer deleted successfully.");
         } else {
-            alert(result.error);
+            toastError(result.error || "Could not delete the farmer. Please try again.");
         }
     };
 

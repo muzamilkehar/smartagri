@@ -1,9 +1,23 @@
 import { useState, useEffect } from "react";
-import { MdOutlineImageSearch, MdOutlineSearch, MdUpload, MdDelete, MdExpandMore, MdExpandLess } from "react-icons/md";
-import { FaLeaf, FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
+import {
+    MdOutlineImageSearch,
+    MdOutlineSearch,
+    MdUpload,
+    MdDelete,
+    MdExpandMore,
+    MdExpandLess
+} from "react-icons/md";
+import { FaLeaf, FaCheckCircle, FaExclamationTriangle, FaInfoCircle } from "react-icons/fa";
 import { getFields } from "../services/fieldAPI";
 import { getCropsForField } from "../services/cropAPI";
-import { predictDiseaseSaved, predictDiseaseQuick, getDiseaseHistory, deleteDiseasePrediction } from "../services/diseaseAPI";
+import {
+    predictDiseaseSaved,
+    predictDiseaseQuick,
+    getDiseaseHistory,
+    deleteDiseasePrediction,
+    deleteAllDiseasePredictions
+} from "../services/diseaseAPI";
+import { toastSuccess, toastError, toastWarn } from "../utils/toast";
 
 const selectClass = "w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 bg-gray-50 focus:bg-white";
 const labelClass = "text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5 block";
@@ -13,22 +27,26 @@ const confidenceColor = (c) => (c >= 80 ? "text-red-600" : c >= 50 ? "text-orang
 const Disease = () => {
     const [mode, setMode] = useState("save"); // "save" | "quick"
 
+    // ---------- Setup (fields + crops) ----------
     const [fields, setFields] = useState([]);
     const [selectedFieldId, setSelectedFieldId] = useState("");
     const [crops, setCrops] = useState([]);
     const [selectedCropId, setSelectedCropId] = useState("");
     const [loadingSetup, setLoadingSetup] = useState(true);
 
+    // ---------- Upload + prediction ----------
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState("");
 
+    // ---------- History ----------
     const [history, setHistory] = useState([]);
     const [loadingHistory, setLoadingHistory] = useState(true);
     const [expandedId, setExpandedId] = useState(null);
 
+    /* ---------- Initial load ---------- */
     useEffect(() => {
         const init = async () => {
             setLoadingSetup(true);
@@ -43,8 +61,13 @@ const Disease = () => {
         loadHistory();
     }, []);
 
+    /* ---------- Load crops when field changes ---------- */
     useEffect(() => {
-        if (!selectedFieldId) { setCrops([]); setSelectedCropId(""); return; }
+        if (!selectedFieldId) {
+            setCrops([]);
+            setSelectedCropId("");
+            return;
+        }
         const loadCrops = async () => {
             const result = await getCropsForField(selectedFieldId);
             const list = result.success ? result.crops : [];
@@ -54,6 +77,7 @@ const Disease = () => {
         loadCrops();
     }, [selectedFieldId]);
 
+    /* ---------- Load history ---------- */
     const loadHistory = async () => {
         setLoadingHistory(true);
         const result = await getDiseaseHistory();
@@ -61,6 +85,7 @@ const Disease = () => {
         setLoadingHistory(false);
     };
 
+    /* ---------- Image handlers ---------- */
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -80,6 +105,7 @@ const Disease = () => {
         setError("");
     };
 
+    /* ---------- Analyze ---------- */
     const handleAnalyze = async () => {
         if (!image) return;
         if (mode === "save" && !selectedCropId) {
@@ -98,10 +124,23 @@ const Disease = () => {
         setIsAnalyzing(false);
 
         if (response.success) {
-            setResult({ ...response.prediction, saved: mode === "save" });
-            if (mode === "save") loadHistory();
+            setResult({
+                ...response.prediction,
+                saved: response.saved,
+                fallback: response.fallback
+            });
+
+            if (response.fallback) {
+                toastWarn("Server couldn't save — showing quick result only.");
+            } else if (response.saved) {
+                loadHistory();
+                toastSuccess("Prediction saved to your records.");
+            } else {
+                toastSuccess("Analysis complete.");
+            }
         } else {
             setError(response.error);
+            toastError(response.error);
         }
     };
 
@@ -112,13 +151,27 @@ const Disease = () => {
         setError("");
     };
 
+    /* ---------- Delete one ---------- */
     const handleDeleteHistory = async (id) => {
         if (!window.confirm("Delete this prediction?")) return;
         const response = await deleteDiseasePrediction(id);
         if (response.success) {
             setHistory((prev) => prev.filter((p) => p.id !== id));
+            toastSuccess("Prediction deleted.");
         } else {
-            alert(response.error);
+            toastError(response.error);
+        }
+    };
+
+    /* ---------- Delete all ---------- */
+    const handleDeleteAllHistory = async () => {
+        if (!window.confirm("Delete all disease predictions? This can't be undone.")) return;
+        const response = await deleteAllDiseasePredictions();
+        if (response.success) {
+            setHistory([]);
+            toastSuccess(`Deleted ${response.deletedCount ?? "all"} prediction(s).`);
+        } else {
+            toastError(response.error);
         }
     };
 
@@ -132,15 +185,16 @@ const Disease = () => {
                 <p className="text-gray-500 text-sm mt-1">Upload a plant image to detect disease.</p>
             </div>
 
+            {/* Mode toggle */}
             <div className="inline-flex bg-gray-100 rounded-xl p-1">
                 <button
-                onClick={() => { setMode("save"); setResult(null); }}
+                onClick={() => { setMode("save"); setResult(null); setError(""); }}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${mode === "save" ? "bg-white text-primary-700 shadow-sm" : "text-gray-500"}`}
                 >
                     Save to My Records
                 </button>
                 <button
-                onClick={() => { setMode("quick"); setResult(null); }}
+                onClick={() => { setMode("quick"); setResult(null); setError(""); }}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${mode === "quick" ? "bg-white text-primary-700 shadow-sm" : "text-gray-500"}`}
                 >
                     Quick Check
@@ -148,6 +202,7 @@ const Disease = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* ---------- Upload card ---------- */}
                 <div className="bg-white rounded-2xl border border-gray-100 p-6">
                     <h2 className="text-gray-800 font-semibold text-base mb-4 flex items-center gap-2">
                         <MdUpload className="text-primary-600 text-xl" />
@@ -234,6 +289,7 @@ const Disease = () => {
                     </div>
                 </div>
 
+                {/* ---------- Result card ---------- */}
                 <div className="bg-white rounded-2xl border border-gray-100 p-6">
                     <h2 className="text-gray-800 font-semibold text-base mb-4 flex items-center gap-2">
                         <FaLeaf className="text-primary-600" />
@@ -249,12 +305,27 @@ const Disease = () => {
                                 }
                                 <div>
                                     <p className="font-bold text-sm text-gray-800 capitalize">{diseaseName.replace(/_/g, " ")}</p>
-                                    <p className={`text-xs font-medium ${confidenceColor(confidence)}`}>Confidence: {confidence?.toFixed(1)}%</p>
+                                    <p className={`text-xs font-medium ${confidenceColor(confidence)}`}>Confidence: {confidence?.toFixed(2)}%</p>
                                 </div>
                             </div>
 
+                            {result.fallback && (
+                                <div className="bg-amber-50 border border-amber-200 text-amber-700 text-xs px-3 py-2 rounded-xl flex items-start gap-2">
+                                    <FaInfoCircle className="mt-0.5 flex-shrink-0" />
+                                    <span>Couldn't save this prediction — the server had an error. Showing the quick result instead.</span>
+                                </div>
+                            )}
+
                             {result.saved && (
                                 <p className="text-xs text-primary-600 font-medium">✓ Saved to your prediction history</p>
+                            )}
+
+                            {result.imageUrl && (
+                                <img
+                                src={result.imageUrl}
+                                alt={diseaseName}
+                                className="w-full h-40 object-cover rounded-xl border border-gray-100"
+                                />
                             )}
 
                             {result.treatment?.treatment?.length > 0 && (
@@ -275,7 +346,7 @@ const Disease = () => {
                                 </div>
                             )}
 
-                            {!result.saved && (
+                            {!result.saved && !result.fallback && (
                                 <p className="text-gray-400 text-xs">
                                     Quick Check results aren't saved and don't include treatment details. Switch to "Save to My Records" for full guidance.
                                 </p>
@@ -290,10 +361,20 @@ const Disease = () => {
                 </div>
             </div>
 
+            {/* ---------- History ---------- */}
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-100">
+                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                     <h2 className="text-gray-800 font-bold text-base">Prediction History</h2>
+                    {history.length > 0 && (
+                        <button
+                        onClick={handleDeleteAllHistory}
+                        className="text-xs text-red-500 hover:text-red-600 font-medium transition-colors"
+                        >
+                            Delete All
+                        </button>
+                    )}
                 </div>
+
                 {loadingHistory ? (
                     <div className="p-6 space-y-3">
                         {[1, 2].map((i) => <div key={i} className="bg-gray-100 rounded-xl h-16 animate-pulse" />)}
@@ -305,21 +386,36 @@ const Disease = () => {
                         {history.map((p) => (
                             <div key={p.id} className="p-4">
                                 <div className="flex items-center gap-3">
-                                    <img src={p.imageUrl} alt={p.diseaseName} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
+                                    {p.imageUrl ? (
+                                        <img src={p.imageUrl} alt={p.diseaseName} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
+                                    ) : (
+                                        <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                            <FaLeaf className="text-gray-300" />
+                                        </div>
+                                    )}
                                     <div className="flex-1 min-w-0">
                                         <p className="text-gray-800 font-semibold text-sm capitalize truncate">{p.diseaseName?.replace(/_/g, " ")}</p>
                                         <p className="text-gray-400 text-xs">
                                             {p.crop?.cropName ? `${p.crop.cropName} · ` : ""}
-                                            {new Date(p.predictionDate).toLocaleDateString()} · {p.confidence?.toFixed(1)}% confidence
+                                            {new Date(p.predictionDate).toLocaleDateString()} · {p.confidence?.toFixed(2)}% confidence
                                         </p>
                                     </div>
-                                    <button onClick={() => setExpandedId(expandedId === p.id ? null : p.id)} className="p-1.5 text-gray-400 hover:text-primary-600 transition-colors" aria-label="Toggle details">
+                                    <button
+                                    onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}
+                                    className="p-1.5 text-gray-400 hover:text-primary-600 transition-colors"
+                                    aria-label="Toggle details"
+                                    >
                                         {expandedId === p.id ? <MdExpandLess /> : <MdExpandMore />}
                                     </button>
-                                    <button onClick={() => handleDeleteHistory(p.id)} className="p-1.5 text-gray-400 hover:text-red-500 transition-colors" aria-label="Delete">
+                                    <button
+                                    onClick={() => handleDeleteHistory(p.id)}
+                                    className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                                    aria-label="Delete"
+                                    >
                                         <MdDelete className="text-sm" />
                                     </button>
                                 </div>
+
                                 {expandedId === p.id && (
                                     <div className="mt-3 pl-16 grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {p.treatment?.treatment?.length > 0 && (

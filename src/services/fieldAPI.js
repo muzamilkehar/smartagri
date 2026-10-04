@@ -19,6 +19,15 @@ export const getFields = async (page = 1, limit = 10) => {
     }
 };
 
+export const getFieldById = async (fieldId) => {
+    try {
+        const res = await apiClient.get(`/field/${fieldId}`);
+        return { success: true, field: res.data.field };
+    } catch (error) {
+        return { success: false, error: readErrorMessage(error, "Could not load field.") };
+    }
+};
+
 export const updateField = async (fieldId, updates) => {
     try {
         const res = await apiClient.patch(`/field/${fieldId}`, updates);
@@ -34,5 +43,14 @@ export const deleteField = async (fieldId) => {
         return { success: true };
     } catch (error) {
         return { success: false, error: readErrorMessage(error, "Could not delete field.") };
+    }
+};
+
+export const deleteAllFields = async () => {
+    try {
+        const res = await apiClient.delete("/field/fields/all");
+        return { success: true, deletedCount: res.data.deletedCount };
+    } catch (error) {
+        return { success: false, error: readErrorMessage(error, "Could not delete all fields.") };
     }
 };

@@ -1,14 +1,9 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";   
+import { useAuth } from "../context/AuthContext";
 
-// Protects any routes that require login
+const ProtectedRoute = ({ children, adminOnly = false, farmerOnly = false }) => {
+    const { isLoggedIn, isAdmin, isFarmer, authLoading } = useAuth();
 
-const ProtectedRoute = ({children, adminOnly = false}) => {
-    const {isLoggedIn, isAdmin, authLoading} = useAuth();
-
-    // Still checking for an existing session (e.g. right after a page
-    // refresh) — wait instead of redirecting, or a valid session would
-    // briefly bounce the user to /signin before it's confirmed.
     if (authLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
@@ -17,15 +12,10 @@ const ProtectedRoute = ({children, adminOnly = false}) => {
         );
     }
 
-    // Not logged in + go to sign in
-    if(!isLoggedIn) {
-        return <Navigate to="/signin" replace />;
-    }
+    if (!isLoggedIn) return <Navigate to="/signin" replace />;
+    if (adminOnly && !isAdmin) return <Navigate to="/dashboard" replace />;
+    if (farmerOnly && !isFarmer) return <Navigate to="/dashboard" replace />;
 
-    // Admin only page but user is not admin-> go to dashboard
-    if(adminOnly && !isAdmin) {
-        return <Navigate to="/dashboard" replace/>;
-    }
     return children;
 };
 

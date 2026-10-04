@@ -4,6 +4,7 @@ import { MdDelete, MdTrendingUp } from "react-icons/md";
 import { getFields } from "../services/fieldAPI";
 import { getCropsForField } from "../services/cropAPI";
 import { predictYieldSaved, predictYieldStandalone, getYieldHistory, deleteYieldPrediction } from "../services/yieldAPI";
+import { toastSuccess, toastError } from "../utils/toast";
 
 const REGIONS = ["CENTRAL", "NORTH", "EAST", "WEST", "SOUTH"];
 const SOIL_TYPES = ["SANDY", "CLAY", "LOAMY", "SILTY", "PEATY", "CHALKY", "OTHER"];
@@ -111,9 +112,10 @@ const Yield = () => {
 
         if (response.success) {
             setResult({ saved: true, ...response });
+            toastSuccess("Prediction saved to your records.");
             loadHistory();
         } else {
-            setError(response.error);
+            toastError(response.error);
         }
     };
 
@@ -140,8 +142,9 @@ const Yield = () => {
 
         if (response.success) {
             setResult({ saved: false, prediction: response.prediction });
+            toastSuccess("Prediction completed.");
         } else {
-            setError(response.error);
+            toastError(response.error);
         }
     };
 
@@ -150,8 +153,9 @@ const Yield = () => {
         const response = await deleteYieldPrediction(id);
         if (response.success) {
             setHistory((prev) => prev.filter((p) => p.id !== id));
+            toastSuccess("Prediction deleted.");
         } else {
-            alert(response.error);
+            toastError(response.error);
         }
     };
 

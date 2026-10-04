@@ -14,6 +14,13 @@ export const apiClient = axios.create({
 let isRefreshing = false;
 let pendingQueue = [];
 
+// Once we know refresh is dead, stop hammering the endpoint on every
+// subsequent 401 until the user logs in again.
+const REFRESH_DEAD_KEY = "kisanai_refresh_dead";
+export const markRefreshAlive = () => sessionStorage.removeItem(REFRESH_DEAD_KEY);
+export const markRefreshDead = () => sessionStorage.setItem(REFRESH_DEAD_KEY, "1");
+const isRefreshDead = () => sessionStorage.getItem(REFRESH_DEAD_KEY) === "1";
+
 const resolveQueue = (error) => {
     pendingQueue.forEach(({ resolve, reject }) => (error ? reject(error) : resolve()));
     pendingQueue = [];
@@ -25,7 +32,12 @@ apiClient.interceptors.response.use(
         const { config, response } = error;
         const isAuthEndpoint = config?.url?.startsWith("/auth/");
 
-        if (response?.status !== 401 || isAuthEndpoint || config._retried) {
+        if (
+            response?.status !== 401 ||
+            isAuthEndpoint ||
+            config._retried ||
+            isRefreshDead()
+        ) {
             return Promise.reject(error);
         }
 
@@ -42,10 +54,12 @@ apiClient.interceptors.response.use(
         try {
             await apiClient.post("/auth/refresh");
             isRefreshing = false;
+            markRefreshAlive();
             resolveQueue(null);
             return apiClient(config);
         } catch (refreshError) {
             isRefreshing = false;
+            markRefreshDead();
             resolveQueue(refreshError);
             return Promise.reject(refreshError);
         }

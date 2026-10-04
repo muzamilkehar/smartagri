@@ -9,6 +9,7 @@ import {
 import {
     addCrop, getCropsForField, updateCrop, deleteCrop
 } from "../services/cropAPI";
+import { toastSuccess, toastError } from "../utils/toast";
 
 const AREA_UNITS = ["ACRE", "HECTARE"];
 const REGIONS = ["CENTRAL", "NORTH", "EAST", "WEST", "SOUTH"];
@@ -133,6 +134,7 @@ const Fields = () => {
             loadFields();
         } else {
             setFieldFormError(result.error);
+            toastError(result.error);
         }
     };
 
@@ -141,8 +143,9 @@ const Fields = () => {
         const result = await deleteField(fieldId);
         if (result.success) {
             setFields((prev) => prev.filter((f) => f.id !== fieldId));
+            toastSuccess("Field deleted.");
         } else {
-            alert(result.error);
+            toastError(result.error);
         }
     };
 
@@ -195,10 +198,12 @@ const Fields = () => {
 
         if (result.success) {
             setShowCropModal(false);
+            toastSuccess(editingCropId ? "Crop updated." : "Crop added.");
             const refreshed = await getCropsForField(cropFieldId);
             setCropsByField((prev) => ({ ...prev, [cropFieldId]: refreshed.success ? refreshed.crops : [] }));
         } else {
             setCropFormError(result.error);
+            toastError(result.error);
         }
     };
 
@@ -210,8 +215,9 @@ const Fields = () => {
                 ...prev,
                 [fieldId]: (prev[fieldId] || []).filter((c) => c.id !== cropId)
             }));
+            toastSuccess("Crop deleted.");
         } else {
-            alert(result.error);
+            toastError(result.error);
         }
     };
 

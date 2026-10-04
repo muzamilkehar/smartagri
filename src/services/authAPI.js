@@ -1,4 +1,4 @@
-import { apiClient } from "./apiClient";
+import { apiClient, markRefreshAlive } from "./apiClient";
 import { readErrorMessage } from "./apiError";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -10,19 +10,32 @@ const ROLE_HINT_KEY = "kisanai_role_hint";
 const setRoleHint = (role) => localStorage.setItem(ROLE_HINT_KEY, role);
 const clearRoleHint = () => localStorage.removeItem(ROLE_HINT_KEY);
 
+/**
+ * Backend sends roles as "ADMIN" / "FARMER" (also possibly "USER" historically).
+ * Frontend uses lowercase: "admin" / "farmer".
+ * Anything that isn't admin is treated as farmer.
+ */
+const normalizeRole = (rawRole) => {
+    const r = String(rawRole || "").toUpperCase();
+    return r === "ADMIN" ? "admin" : "farmer";
+};
+
 const normalizeUser = (apiUser) => ({
     id: apiUser.id,
     fullName: apiUser.fullName,
     email: apiUser.email,
-    role: apiUser.role === "ADMIN" ? "admin" : "user",
+    role: normalizeRole(apiUser.role),
+    username: apiUser.username || "",
+    phoneNumber: apiUser.phoneNumber || "",
+    isEmailVerified: !!apiUser.isEmailVerified,
     photoURL: apiUser.profileImageUrl || null,
     city: apiUser.farmer?.city || ""
 });
 
 // ---- mock/demo accounts, used only while USE_MOCK is true ----
 let mockUsers = [
-    { id: 1, email: "admin@smartagri.com", password: "Admin@123", role: "admin", fullName: "Admin User" },
-    { id: 2, email: "user@smartagri.com",  password: "User@123",  role: "user",  fullName: "Muzamil Kehar" }
+    { id: 1, email: "admin@smartagri.com", password: "Admin@123", role: "admin",  fullName: "Admin User" },
+    { id: 2, email: "user@smartagri.com",  password: "User@123",  role: "farmer", fullName: "Muzamil Kehar" }
 ];
 
 const toSafeUser = (user) => {
@@ -42,6 +55,7 @@ export const loginUser = async (email, password) => {
         const res = await apiClient.post("/auth/signin", { email, password });
         const user = normalizeUser(res.data.user);
         setRoleHint(user.role);
+        markRefreshAlive();
         return { success: true, user, token: res.data.accessToken };
     } catch (error) {
         return { success: false, error: readErrorMessage(error, "Could not reach the server. Please try again.") };
@@ -54,7 +68,7 @@ export const registerUser = async ({ fullName, email, password }) => {
         const emailTaken = mockUsers.some((u) => u.email.toLowerCase() === email.toLowerCase());
         if (emailTaken) return { success: false, error: "An account with this email already exists." };
 
-        const newUser = { id: mockUsers.length + 1, fullName, email, password, role: "user" };
+        const newUser = { id: mockUsers.length + 1, fullName, email, password, role: "farmer" };
         mockUsers.push(newUser);
 
         return { success: true, user: toSafeUser(newUser), token: "mock-token" };
@@ -64,6 +78,14 @@ export const registerUser = async ({ fullName, email, password }) => {
         const res = await apiClient.post("/auth/signup", { fullName, email, password });
         const user = normalizeUser(res.data.user);
         setRoleHint(user.role);
+        markRefreshAlive();
+
+        // If the backend doesn't set the access cookie on signup, ask for
+        // one now so the very next dashboard call is authenticated.
+        if (!res.data.accessToken) {
+            await apiClient.post("/auth/refresh").catch(() => {});
+        }
+
         return { success: true, user, token: res.data.accessToken };
     } catch (error) {
         return { success: false, error: readErrorMessage(error, "Could not reach the server. Please try again.") };
@@ -75,7 +97,7 @@ export const loginWithGoogle = async ({ credential, fullName, email, photoURL })
         await delay(400);
         let user = mockUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
         if (!user) {
-            user = { id: mockUsers.length + 1, fullName, email, password: null, role: "user", photoURL };
+            user = { id: mockUsers.length + 1, fullName, email, password: null, role: "farmer", photoURL };
             mockUsers.push(user);
         }
         const safeUser = toSafeUser(user);
@@ -86,6 +108,7 @@ export const loginWithGoogle = async ({ credential, fullName, email, photoURL })
         const res = await apiClient.post("/auth/google", { idToken: credential });
         const user = normalizeUser(res.data.user);
         setRoleHint(user.role);
+        markRefreshAlive();
         return { success: true, user, token: res.data.accessToken };
     } catch (error) {
         return { success: false, error: readErrorMessage(error, "Google sign-in failed. Please try again.") };
@@ -99,8 +122,10 @@ export const getCurrentUser = async () => {
     if (!roleHint) return { success: false };
 
     try {
+        // roleHint is normalized to "admin" | "farmer"
         const endpoint = roleHint === "admin" ? "/admin/account" : "/farmer/account";
         const res = await apiClient.get(endpoint);
+        markRefreshAlive();
         return { success: true, user: normalizeUser(res.data.data) };
     } catch {
         clearRoleHint();
@@ -110,6 +135,7 @@ export const getCurrentUser = async () => {
 
 export const logoutUser = async () => {
     clearRoleHint();
+    sessionStorage.removeItem("kisanai_refresh_dead");
     if (USE_MOCK) return;
 
     try {
@@ -146,5 +172,16 @@ export const resetPassword = async (token, password) => {
         return { success: true };
     } catch (error) {
         return { success: false, error: readErrorMessage(error, "Could not reset your password. The link may have expired.") };
+    }
+};
+
+export const changePassword = async (currentPassword, newPassword) => {
+    if (USE_MOCK) return { success: true };
+
+    try {
+        await apiClient.patch("/auth/change-password", { currentPassword, newPassword });
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: readErrorMessage(error, "Could not change password.") };
     }
 };

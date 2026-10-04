@@ -63,3 +63,13 @@ export const deleteYieldPrediction = async (id) => {
         return { success: false, error: readErrorMessage(error, "Could not delete prediction.") };
     }
 };
+
+export const deleteAllYieldPredictions = async () => {
+    if (USE_MOCK) return { success: true };
+    try {
+        const res = await apiClient.delete("/yield/all");
+        return { success: true, deletedCount: res.data.deletedCount };
+    } catch (error) {
+        return { success: false, error: readErrorMessage(error, "Could not delete all predictions.") };
+    }
+};
