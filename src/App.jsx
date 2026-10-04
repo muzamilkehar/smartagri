@@ -15,6 +15,9 @@
   import Users from "./dashboard/Users";
   import { AuthProvider } from "./context/AuthContext";
   import ProtectedRoute from "./components/ProtectedRoute"; 
+  import ResetPassword from "./pages/resetPassword";
+  import AdminAnalytics from "./dashboard/AdminAnalytics";
+  import SystemSettings from "./dashboard/SystemSettings";
 
 
 
@@ -47,6 +50,7 @@
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Protected Dashboard Routes */}
 
@@ -99,6 +103,18 @@
                 <DashboardLayout><Users /> </DashboardLayout>
               </ProtectedRoute>
             }/>
+
+          <Route path="/dashboard/admin-analytics" element={
+            <ProtectedRoute adminOnly>
+              <DashboardLayout><AdminAnalytics /></DashboardLayout>
+            </ProtectedRoute>
+          }/>
+
+          <Route path="/dashboard/settings" element={
+            <ProtectedRoute adminOnly>
+              <DashboardLayout><SystemSettings /></DashboardLayout>
+            </ProtectedRoute>
+          }/>
             
 
 

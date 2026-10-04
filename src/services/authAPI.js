@@ -118,3 +118,33 @@ export const logoutUser = async () => {
         // Already logged out / token already invalid — nothing more to do
     }
 };
+
+export const forgotPassword = async (email) => {
+    if (USE_MOCK) {
+        await delay(600);
+        return { success: true, message: "If an account exists, a password reset email has been sent." };
+    }
+
+    try {
+        const res = await apiClient.post("/auth/forget-password", { email });
+        // resetLink only exists because real email sending isn't wired up yet —
+        // useful for testing now, drop it once your backend actually sends email.
+        return { success: true, message: res.data.message, resetLink: res.data.resetLink };
+    } catch (error) {
+        return { success: false, error: readErrorMessage(error, "Could not send reset link. Please try again.") };
+    }
+};
+
+export const resetPassword = async (token, password) => {
+    if (USE_MOCK) {
+        await delay(600);
+        return { success: true };
+    }
+
+    try {
+        await apiClient.post("/auth/reset-password", { token, password });
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: readErrorMessage(error, "Could not reset your password. The link may have expired.") };
+    }
+};

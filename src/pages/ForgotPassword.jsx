@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { GiPlantSeed } from "react-icons/gi";
 import { FaEnvelope, FaTimesCircle, FaCheckCircle, FaArrowLeft } from "react-icons/fa";
+import { forgotPassword } from "../services/authAPI";
 
 
 const ForgotPassword = () => {
@@ -9,6 +10,7 @@ const ForgotPassword = () => {
     const [error, setError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [devResetLink, setDevResetLink] = useState("");
 
     const validate = () => {
         if(!email.trim())
@@ -19,19 +21,27 @@ const ForgotPassword = () => {
         return "";
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const validationError = validate();
         if(validationError){
             setError(validationError);
             return;
         }
-        
+
         setIsSubmitting(true);
-        setTimeout(() =>{
-            setIsSubmitting(false);
+        setError("");
+
+        const result = await forgotPassword(email.trim());
+
+        setIsSubmitting(false);
+
+        if (result.success) {
+            setDevResetLink(result.resetLink || "");
             setIsSuccess(true);
-        }, 1500);
+        } else {
+            setError(result.error);
+        }
     };
 
 
@@ -135,6 +145,19 @@ const ForgotPassword = () => {
                         <p className="text-primary-600 font-semibold text-sm mb-6">
                             {email}
                         </p>
+
+                        {devResetLink && (
+                            <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6">
+                                <p className="text-amber-700 text-xs font-semibold mb-1">Dev note — email isn't wired up yet</p>
+                                <a
+                                href={devResetLink}
+                                className="text-amber-700 text-xs underline break-all"
+                                >
+                                    {devResetLink}
+                                </a>
+                            </div>
+                        )}
+
                         <div className="bg-primary-50 border border-primary-200 rounded-xl px-4 py-3 mb-8">
                             <p className="text-primary-700 text-xs leading-relaxed">
                                 Didn't receive an email? Check your spam folder or {""}

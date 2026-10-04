@@ -4,7 +4,7 @@ import { GiPlantSeed } from "react-icons/gi";
 
 import { MdDashboard, MdOutlineImageSearch, MdWaterDrop,
         MdWbSunny,  MdPerson, MdMenu, MdClose, MdPeople,
-        MdTerrain
+        MdTerrain, MdBarChart, MdSettings
  } from "react-icons/md";
 
  import { GiWheat } from "react-icons/gi";
@@ -28,6 +28,8 @@ import { MdDashboard, MdOutlineImageSearch, MdWaterDrop,
         { label: "Soil Monitoring",  icon: <MdWaterDrop />,          path: "/dashboard/soil",    roles: ["admin", "user"] },
         { label: "Weather Forecast", icon: <MdWbSunny />,            path: "/dashboard/weather", roles: ["admin", "user"] },
         { label: "User Management",  icon: <MdPeople />,             path: "/dashboard/users",   roles: ["admin"]         },
+        { label: "Platform Analytics", icon: <MdBarChart />,         path: "/dashboard/admin-analytics", roles: ["admin"] },
+        { label: "System Settings",  icon: <MdSettings />,           path: "/dashboard/settings", roles: ["admin"]        },
         { label: "Profile",          icon: <MdPerson />,             path: "/dashboard/profile", roles: ["admin", "user"] }
     ];
 
