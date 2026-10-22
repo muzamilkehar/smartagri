@@ -175,13 +175,27 @@ export const resetPassword = async (token, password) => {
     }
 };
 
+// Add this at the bottom of src/services/authAPI.js
+
 export const changePassword = async (currentPassword, newPassword) => {
-    if (USE_MOCK) return { success: true };
+    if (USE_MOCK) {
+        await delay(600);
+        // In mock mode, "Admin@123" is the standard password
+        return { success: true }; 
+    }
 
     try {
-        await apiClient.patch("/auth/change-password", { currentPassword, newPassword });
+        await apiClient.patch("/auth/change-password", { 
+            currentPassword, 
+            newPassword 
+        });
         return { success: true };
     } catch (error) {
-        return { success: false, error: readErrorMessage(error, "Could not change password.") };
+        return { 
+            success: false, 
+            error: readErrorMessage(error, "Could not change password. The current password may be incorrect.") 
+        };
     }
 };
+
+

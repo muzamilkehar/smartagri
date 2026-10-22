@@ -1,19 +1,22 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
     FaUser, FaEnvelope, FaUserShield,
-    FaCamera, FaTrash, FaTimes, FaCheck, FaUndo, FaLock, FaPhone
+    FaCamera, FaTrash, FaTimes, FaCheck, FaUndo, FaLock, FaShieldAlt, FaPhone
 } from "react-icons/fa";
 import { MdLocationOn, MdAlternateEmail } from "react-icons/md";
 import { GiPlantSeed } from "react-icons/gi";
 import { useAuth } from "../context/AuthContext";
 import { toastSuccess, toastError } from "../utils/toast";
-import EmailVerificationModal from "../components/EmailVerificationModal";
+import ChangePasswordModal from "../components/ChangePasswordModal";
 
 const OUTPUT_SIZE = 320;
 const CROP_SIZE = 260;
 
 const Profile = () => {
     const { currentUser, isAdmin, updateProfile, updateAdmin, updatePhoto, removePhoto } = useAuth();
+
+    // --- Change Password State ---
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
 
     /* ---------- Read-only fields (both roles) ---------- */
     const [profile] = useState({
@@ -29,7 +32,7 @@ const Profile = () => {
         phoneNumber: currentUser?.phoneNumber || ""
     });
     const [savingAdmin, setSavingAdmin] = useState(false);
-    const [adminStatus, setAdminStatus] = useState(""); // "saved" | "error" | ""
+    const [adminStatus, setAdminStatus] = useState(""); 
 
     const handleAdminFieldChange = (e) => {
         const { name, value } = e.target;
@@ -92,11 +95,7 @@ const Profile = () => {
         if (currentUser?.photoURL && currentUser.photoURL !== photoPreview) {
             setPhotoPreview(currentUser.photoURL);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentUser?.photoURL]);
-
-    /* ---------- Email verification modal ---------- */
-    const [showVerifyModal, setShowVerifyModal] = useState(false);
 
     /* ---------- Crop modal ---------- */
     const [rawImage, setRawImage] = useState(null);
@@ -368,30 +367,6 @@ const Profile = () => {
                     </div>
 
                     {/* ============================================
-                       EMAIL VERIFICATION NAG (unverified users)
-                       ============================================ */}
-                    {!currentUser?.isEmailVerified && (
-                        <div className="mb-6">
-                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between gap-3">
-                                <div className="flex items-center gap-2 min-w-0">
-                                    <FaEnvelope className="text-amber-600 flex-shrink-0" />
-                                    <div className="min-w-0">
-                                        <p className="text-amber-800 text-xs font-semibold">Email not verified</p>
-                                        <p className="text-amber-700 text-xs truncate">{currentUser?.email}</p>
-                                    </div>
-                                </div>
-                                <button
-                                type="button"
-                                onClick={() => setShowVerifyModal(true)}
-                                className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap"
-                                >
-                                    Verify Now
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ============================================
                        ADMIN: editable fullName, username, phone
                        ============================================ */}
                     {isAdmin ? (
@@ -569,6 +544,26 @@ const Profile = () => {
                         </>
                     )}
 
+                    {/* ============================================
+                       SECURITY SECTION (Change Password)
+                       ============================================ */}
+                    <div className="mt-6 pt-6 border-t border-gray-100">
+                        <label className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-1.5 block">
+                            Security
+                        </label>
+                        <p className="text-xs text-gray-400 mb-3">
+                            Update your account password to keep your data secure.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => setShowPasswordModal(true)}
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                            <FaShieldAlt className="text-gray-500" />
+                            Change Password
+                        </button>
+                    </div>
+
                     {/* Extra info (both roles) */}
                     <div className="mt-6 pt-6 border-t border-gray-100 grid grid-cols-2 gap-4">
                         <div className={`rounded-xl p-4 transition-colors ${isAdmin ? "bg-purple-50" : "bg-primary-50"}`}>
@@ -590,7 +585,7 @@ const Profile = () => {
                 </div>
             </div>
 
-            {/* ---------- Adjust Photo Modal ---------- */}
+            {/* Adjust Photo modal */}
             {showAdjustModal && rawImage && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
                     <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
@@ -652,10 +647,10 @@ const Profile = () => {
                 </div>
             )}
 
-            {/* ---------- Email Verification Modal ---------- */}
-            <EmailVerificationModal
-                isOpen={showVerifyModal}
-                onClose={() => setShowVerifyModal(false)}
+            {/* Change Password Modal */}
+            <ChangePasswordModal 
+                isOpen={showPasswordModal} 
+                onClose={() => setShowPasswordModal(false)} 
             />
         </div>
     );
