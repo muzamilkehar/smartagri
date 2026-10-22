@@ -1,7 +1,6 @@
 import {Link} from "react-router-dom";  
 import {FaLeaf, FaChevronDown, FaSun} from "react-icons/fa";
 import {GiWheat, GiWaterDrop} from "react-icons/gi";
-import farmVideo from "..//assets/farm-video.mp4";
 
 
 const HeroSection = () => {
@@ -16,7 +15,7 @@ const HeroSection = () => {
             playsInline
             className="absolute inset-0 w-full h-full object-cover z-0"
             >
-                <source src={farmVideo} type="video/mp4"/>
+                <source src="https://res.cloudinary.com/ttzxb2pd/video/upload/v1792691203/farm-video.mp4" type="video/mp4"/>
             </video>
 
             {/*Background Overlay - keeps text readble over video*/}
