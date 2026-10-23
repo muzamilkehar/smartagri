@@ -223,7 +223,7 @@
                             </div>
 
                             <div className="text-left">
-                                <p className="text-white font-bold text-xl leading-none">SmartAgri</p>
+                                <p className="text-white font-bold text-xl leading-none">KisanAI Advisor</p>
                                 <p className="text-primary-200 text-sm">AI Platform</p>
                             </div>
                         </div>  
@@ -267,7 +267,7 @@
                         </div>
 
                         <div>
-                            <p className="text-primary-700 font-bold text-base leading-none">SmartAgri</p>
+                            <p className="text-primary-700 font-bold text-base leading-none">KisanAI Advisor</p>
                             <p className="text-gray-400 text-xs ">AI Platform</p>
                         </div>
                         </div>
@@ -318,7 +318,7 @@
                                     type="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    placeholder="admin@smartagri.com"
+                                    placeholder="admin@kisanadvisor.com"
                                     icon={<FaEnvelope/>}
                                     error={errors.email}
                                 />
@@ -408,7 +408,7 @@
                             {/* Footer */}
 
                             <p className="text-xs text-gray-400 mt-8">
-                                @ {new Date().getFullYear()} SmartAgri Platform
+                                @ {new Date().getFullYear()} KisanAI Advisor
                             </p>                        
                         </div>  
                     </div>

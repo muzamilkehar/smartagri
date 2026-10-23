@@ -97,7 +97,7 @@ const ContactSection = () => {
                     {
                         icon: <FaEnvelope className="text-primary-600 text-lg" />,
                         title: "Email Us",
-                        value: "smartagri@gmail.com"
+                        value: "kisanaiadvisor@gmail.com"
                     },
 
                     {

@@ -65,7 +65,7 @@ const DashboardLayout = ({ children }) => {
                         <GiPlantSeed className="text-white text-xl" />
                     </div>
                     <div>
-                        <p className="text-white font-bold text-sm leading-none">SmartAgri</p>
+                        <p className="text-white font-bold text-sm leading-none">KisanAI Advisor</p>
                         <p className="text-primary-300 text-xs">AI Platform</p>
                     </div>
                 </div>

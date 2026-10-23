@@ -40,7 +40,7 @@ const Navbar = () => {
                     <GiPlantSeed className="text-white text-xl"/>
             </div>
             <div className="leading-tight">
-                <p className="text-primary-700 font-bold text-sm leading-none">Smart Agri</p>
+                <p className="text-primary-700 font-bold text-sm leading-none">KisanAI Advisor</p>
                 <p className="text-gray-400 text-xs leading-none">AI Platform</p>
             </div>
             </Link>

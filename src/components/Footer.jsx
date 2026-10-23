@@ -15,7 +15,7 @@ const Footer = () => {
                             <GiPlantSeed className="text-white text-lg"/>
                         </div>
                         <div>
-                            <p className="text-white font-bold text-sm">Smart Agri</p>
+                            <p className="text-white font-bold text-sm">KisanAI Advisor</p>
                             <p className="text-gray-500 text-xs">AI Platform</p>
                         </div>
                     </div>
@@ -73,7 +73,7 @@ const Footer = () => {
                 <div>
                     <h4 className="text-white font-semibold text-sm mb-4 ">Contact Info</h4>
                     <ul className="space-y-3 text-sm">
-                        <li>📧 smartagri@project.com</li>
+                        <li>📧 kisanaiadvisor@project.com</li>
                         <li>📞 +92 300 1234567</li>
                         <li>📍 Shikarpur Sindh, Pakistan</li>
                     </ul>
@@ -84,7 +84,7 @@ const Footer = () => {
             <div className="border-t border-gray-800 mt-10 pt-6 flex flex-col sm:flex-row
             items-center justify-between gap-4">
                 <p className="text-xs text-gray-600 ">
-                    @ {new Date().getFullYear()} SmartAgri Platform. All rights reserved
+                    @ {new Date().getFullYear()} KisanAI Advisor. All rights reserved
                 </p>
                 <div className="flex items-center gap-4 text-xs">
                     <a href="#" className="hover:text-primary-400 transition-colors">Privacy Policy</a>
