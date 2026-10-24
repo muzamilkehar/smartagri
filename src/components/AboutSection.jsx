@@ -1,14 +1,13 @@
 import { FaBug, FaSeedling, FaWater, FaCloudSun } from "react-icons/fa";
 
-
 const feature = [
     {
         icon:<FaBug className="text-3xl text-primary-600" />,
         title: "Plant Dieses Detection",
         description:
                 "Upload a photo of your plant and our AI model instantly identifies diseases, tells you the severity, and recommends the best treatment — saving your crops before it's too late.",
-            bg: "bg-primary-50",
-            border: "border-primary-200"
+        bg: "bg-primary-50",
+        border: "border-primary-200"
     },
 
     {
@@ -30,8 +29,15 @@ const feature = [
         border: "border-blue-200",
     },
 
-    
-
+    // UPDATED: Weather card modified to match the exact structure and styling of the first 3 cards
+    {
+        icon: <FaCloudSun className="text-3xl text-yellow-500" />, // Adjusted color to match the yellow theme
+        title: "Weather Forecast",
+        description:
+            "Get accurate and up-to-date weather forecasts for your area. Plan your farming activities effectively with live updates, rain alerts, and a 7-day forecast view.",
+        bg: "bg-yellow-50", // UPDATED: Using standard Tailwind yellow-50 to closely match the pale yellow background
+        border: "border-yellow-200", // UPDATED: Matching soft yellow border
+    },
 
 ];
 
@@ -70,20 +76,24 @@ const AboutSection = () => {
             <div 
                 key={feature.title}
                 className={`${feature.bg} ${feature.border} border rounded-2xl p-6 hover:shadow-lg transition-all duration-300 
-                hover:-translate-y-1 group`}
+                hover:-translate-y-1 group flex flex-col`} // Added flex flex-col for consistent height if needed
             >
 
+            {/* Icon Box */}
             <div className="mb-4 p-3 bg-white rounded-xl w-fit shadow-sm group-hover:shadow-md transition-shadow">
             {feature.icon}
             </div>
 
-        <h3 className="text-gray-800 font-semibold text-base mb-2">
-            {feature.title}
-        </h3>
-        
-        <p className="text-gray-500 text-sm leading-relaxed">
-            {feature.description}
-        </p>
+            {/* Title */}
+            <h3 className="text-gray-800 font-semibold text-base mb-2">
+                {feature.title}
+            </h3>
+            
+            {/* UPDATED: Reverted to standard paragraph text to match the other cards perfectly */}
+            <p className="text-gray-500 text-sm leading-relaxed">
+                {feature.description}
+            </p>
+
          </div>
     ))}
    
