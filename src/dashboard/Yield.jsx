@@ -27,7 +27,6 @@ const emptyStandaloneForm = {
 
 const Yield = () => {
     const [mode, setMode] = useState("save"); // "save" | "quick"
-
     const [fields, setFields] = useState([]);
     const [selectedFieldId, setSelectedFieldId] = useState("");
     const [crops, setCrops] = useState([]);
@@ -115,7 +114,10 @@ const Yield = () => {
             toastSuccess("Prediction saved to your records.");
             loadHistory();
         } else {
-            toastError(response.error);
+            // Show a more descriptive error if the backend throws a 500
+            const msg = response.error || "Server error. Please go to 'My Fields' and make sure your Field has GPS coordinates, Altitude, and a Soil Reading saved.";
+            setError(msg);
+            toastError(msg);
         }
     };
 
@@ -144,6 +146,7 @@ const Yield = () => {
             setResult({ saved: false, prediction: response.prediction });
             toastSuccess("Prediction completed.");
         } else {
+            setError(response.error);
             toastError(response.error);
         }
     };
@@ -169,18 +172,8 @@ const Yield = () => {
             </div>
 
             <div className="inline-flex bg-gray-100 rounded-xl p-1">
-                <button
-                onClick={() => { setMode("save"); setResult(null); setError(""); }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${mode === "save" ? "bg-white text-primary-700 shadow-sm" : "text-gray-500"}`}
-                >
-                    Save to My Records
-                </button>
-                <button
-                onClick={() => { setMode("quick"); setResult(null); setError(""); }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${mode === "quick" ? "bg-white text-primary-700 shadow-sm" : "text-gray-500"}`}
-                >
-                    Quick Check
-                </button>
+                <button onClick={() => { setMode("save"); setResult(null); setError(""); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${mode === "save" ? "bg-white text-primary-700 shadow-sm" : "text-gray-500"}`}>Save to My Records</button>
+                <button onClick={() => { setMode("quick"); setResult(null); setError(""); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${mode === "quick" ? "bg-white text-primary-700 shadow-sm" : "text-gray-500"}`}>Quick Check</button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
@@ -188,61 +181,29 @@ const Yield = () => {
                     {mode === "save" ? (
                         <>
                             <h2 className="text-gray-800 font-semibold text-base mb-1">From Your Field Data</h2>
-                            <p className="text-gray-400 text-xs mb-4">
-                                Soil, crop, field, and weather details are pulled automatically from your records — just tell us about usage this season.
-                            </p>
+                            <p className="text-gray-400 text-xs mb-4">Soil, crop, field, and weather details are pulled automatically from your records — just tell us about usage this season.</p>
 
                             {loadingSetup ? (
                                 <p className="text-gray-400 text-xs">Loading your fields...</p>
                             ) : fields.length === 0 ? (
-                                <div className="bg-amber-50 border border-amber-200 text-amber-700 text-xs px-3 py-2.5 rounded-xl">
-                                    Add a field and crop first to use this, or switch to Quick Check.
-                                </div>
+                                <div className="bg-amber-50 border border-amber-200 text-amber-700 text-xs px-3 py-2.5 rounded-xl">Add a field and crop first to use this, or switch to Quick Check.</div>
                             ) : (
                                 <form onSubmit={handlePredictSaved} className="space-y-3">
                                     <div className="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label className={labelClass}>Field</label>
-                                            <select value={selectedFieldId} onChange={(e) => setSelectedFieldId(e.target.value)} className={selectClass}>
-                                                {fields.map((f) => <option key={f.id} value={f.id}>{f.name || "Unnamed Field"}</option>)}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className={labelClass}>Crop</label>
-                                            <select value={selectedCropId} onChange={(e) => setSelectedCropId(e.target.value)} className={selectClass} disabled={crops.length === 0}>
-                                                {crops.length === 0
-                                                    ? <option value="">No crops in this field</option>
-                                                    : crops.map((c) => <option key={c.id} value={c.id}>{c.cropName} ({c.season})</option>)
-                                                }
-                                            </select>
-                                        </div>
+                                        <div><label className={labelClass}>Field</label><select value={selectedFieldId} onChange={(e) => setSelectedFieldId(e.target.value)} className={selectClass}>{fields.map((f) => <option key={f.id} value={f.id}>{f.name || "Unnamed Field"}</option>)}</select></div>
+                                        <div><label className={labelClass}>Crop</label><select value={selectedCropId} onChange={(e) => setSelectedCropId(e.target.value)} className={selectClass} disabled={crops.length === 0}>{crops.length === 0 ? <option value="">No crops in this field</option> : crops.map((c) => <option key={c.id} value={c.id}>{c.cropName} ({c.season})</option>)}</select></div>
                                     </div>
 
                                     <div className="grid grid-cols-3 gap-3">
-                                        <div>
-                                            <label className={labelClass}>Fertilizer (kg)</label>
-                                            <input type="number" step="0.1" min="0" name="Fertilizer_Used" value={usageForm.Fertilizer_Used} onChange={handleUsageChange} className={inputClass} />
-                                        </div>
-                                        <div>
-                                            <label className={labelClass}>Pesticide (L)</label>
-                                            <input type="number" step="0.1" min="0" name="Pesticide_Used" value={usageForm.Pesticide_Used} onChange={handleUsageChange} className={inputClass} />
-                                        </div>
-                                        <div>
-                                            <label className={labelClass}>Sunlight (hrs/day)</label>
-                                            <input type="number" step="0.1" min="0" max="24" name="Sunlight_Hours" value={usageForm.Sunlight_Hours} onChange={handleUsageChange} className={inputClass} />
-                                        </div>
+                                        <div><label className={labelClass}>Fertilizer (kg)</label><input type="number" step="0.1" min="0" name="Fertilizer_Used" value={usageForm.Fertilizer_Used} onChange={handleUsageChange} className={inputClass} /></div>
+                                        <div><label className={labelClass}>Pesticide (L)</label><input type="number" step="0.1" min="0" name="Pesticide_Used" value={usageForm.Pesticide_Used} onChange={handleUsageChange} className={inputClass} /></div>
+                                        <div><label className={labelClass}>Sunlight (hrs/day)</label><input type="number" step="0.1" min="0" max="24" name="Sunlight_Hours" value={usageForm.Sunlight_Hours} onChange={handleUsageChange} className={inputClass} /></div>
                                     </div>
 
                                     {error && <p className="text-red-500 text-xs">{error}</p>}
 
-                                    <button
-                                    type="submit"
-                                    disabled={isPredicting || !selectedCropId}
-                                    className={`w-full py-3 rounded-xl font-semibold text-sm transition-colors text-white flex items-center justify-center gap-2
-                                        ${isPredicting || !selectedCropId ? "bg-gray-300 cursor-not-allowed" : "bg-primary-600 hover:bg-primary-700"}`}
-                                    >
-                                        <MdTrendingUp className="text-lg" />
-                                        {isPredicting ? "Predicting..." : "Predict Yield"}
+                                    <button type="submit" disabled={isPredicting || !selectedCropId} className={`w-full py-3 rounded-xl font-semibold text-sm transition-colors text-white flex items-center justify-center gap-2 ${isPredicting || !selectedCropId ? "bg-gray-300 cursor-not-allowed" : "bg-primary-600 hover:bg-primary-700"}`}>
+                                        <MdTrendingUp className="text-lg" /> {isPredicting ? "Predicting..." : "Predict Yield"}
                                     </button>
                                 </form>
                             )}
@@ -250,9 +211,7 @@ const Yield = () => {
                     ) : (
                         <>
                             <h2 className="text-gray-800 font-semibold text-base mb-1">Full Manual Input</h2>
-                            <p className="text-gray-400 text-xs mb-4">
-                                No field or crop needed — enter every value yourself. Nothing is saved.
-                            </p>
+                            <p className="text-gray-400 text-xs mb-4">No field or crop needed — enter every value yourself. Nothing is saved.</p>
 
                             <form onSubmit={handlePredictStandalone} className="space-y-4">
                                 <div>
@@ -286,38 +245,13 @@ const Yield = () => {
                                 <div>
                                     <p className="text-xs font-semibold text-gray-500 mb-2">Crop & Usage</p>
                                     <div className="grid grid-cols-2 gap-3 mb-3">
-                                        <div>
-                                            <label className={labelClass}>Crop Type</label>
-                                            <select name="Crop_Type" value={standaloneForm.Crop_Type} onChange={handleStandaloneChange} className={selectClass}>
-                                                {CROP_TYPES.map((c) => <option key={c} value={c}>{c}</option>)}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className={labelClass}>Season</label>
-                                            <select name="Season" value={standaloneForm.Season} onChange={handleStandaloneChange} className={selectClass}>
-                                                {SEASONS.map((s) => <option key={s} value={s}>{s}</option>)}
-                                            </select>
-                                        </div>
+                                        <div><label className={labelClass}>Crop Type</label><select name="Crop_Type" value={standaloneForm.Crop_Type} onChange={handleStandaloneChange} className={selectClass}>{CROP_TYPES.map((c) => <option key={c} value={c}>{c}</option>)}</select></div>
+                                        <div><label className={labelClass}>Season</label><select name="Season" value={standaloneForm.Season} onChange={handleStandaloneChange} className={selectClass}>{SEASONS.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
                                     </div>
                                     <div className="grid grid-cols-3 gap-3 mb-3">
-                                        <div>
-                                            <label className={labelClass}>Soil Type</label>
-                                            <select name="Soil_Type" value={standaloneForm.Soil_Type} onChange={handleStandaloneChange} className={selectClass}>
-                                                {SOIL_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className={labelClass}>Region</label>
-                                            <select name="Region" value={standaloneForm.Region} onChange={handleStandaloneChange} className={selectClass}>
-                                                {REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className={labelClass}>Irrigation</label>
-                                            <select name="Irrigation_Type" value={standaloneForm.Irrigation_Type} onChange={handleStandaloneChange} className={selectClass}>
-                                                {IRRIGATION_TYPES.map((i) => <option key={i} value={i}>{i.replace("_", " ")}</option>)}
-                                            </select>
-                                        </div>
+                                        <div><label className={labelClass}>Soil Type</label><select name="Soil_Type" value={standaloneForm.Soil_Type} onChange={handleStandaloneChange} className={selectClass}>{SOIL_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
+                                        <div><label className={labelClass}>Region</label><select name="Region" value={standaloneForm.Region} onChange={handleStandaloneChange} className={selectClass}>{REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}</select></div>
+                                        <div><label className={labelClass}>Irrigation</label><select name="Irrigation_Type" value={standaloneForm.Irrigation_Type} onChange={handleStandaloneChange} className={selectClass}>{IRRIGATION_TYPES.map((i) => <option key={i} value={i}>{i.replace("_", " ")}</option>)}</select></div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div><label className={labelClass}>Fertilizer (kg)</label><input type="number" step="0.1" name="Fertilizer_Used" value={standaloneForm.Fertilizer_Used} onChange={handleStandaloneChange} className={inputClass} /></div>
@@ -327,14 +261,8 @@ const Yield = () => {
 
                                 {error && <p className="text-red-500 text-xs">{error}</p>}
 
-                                <button
-                                type="submit"
-                                disabled={isPredicting}
-                                className={`w-full py-3 rounded-xl font-semibold text-sm transition-colors text-white flex items-center justify-center gap-2
-                                    ${isPredicting ? "bg-gray-300 cursor-not-allowed" : "bg-primary-600 hover:bg-primary-700"}`}
-                                >
-                                    <MdTrendingUp className="text-lg" />
-                                    {isPredicting ? "Predicting..." : "Predict Yield"}
+                                <button type="submit" disabled={isPredicting} className={`w-full py-3 rounded-xl font-semibold text-sm transition-colors text-white flex items-center justify-center gap-2 ${isPredicting ? "bg-gray-300 cursor-not-allowed" : "bg-primary-600 hover:bg-primary-700"}`}>
+                                    <MdTrendingUp className="text-lg" /> {isPredicting ? "Predicting..." : "Predict Yield"}
                                 </button>
                             </form>
                         </>
@@ -343,30 +271,19 @@ const Yield = () => {
 
                 <div className="bg-white rounded-2xl border border-gray-100 p-6">
                     <h2 className="text-gray-800 font-semibold text-base mb-4 flex items-center gap-2">
-                        <GiWheat className="text-primary-600" />
-                        Predicted Yield
+                        <GiWheat className="text-primary-600" /> Predicted Yield
                     </h2>
 
                     {result ? (
                         <div className="space-y-4">
                             <div className="bg-gradient-to-br from-primary-600 to-primary-500 rounded-2xl p-6 text-white text-center">
-                                <p className="text-4xl font-bold mb-1">
-                                    {predictedValue?.toFixed(2)}
-                                    <span className="text-lg font-normal ml-1">{result.prediction?.yieldUnit || "tons"}</span>
-                                </p>
-                                <p className="text-primary-100 text-xs">
-                                    {result.saved ? "Saved to your prediction history" : "Quick Check — not saved"}
-                                </p>
+                                <p className="text-4xl font-bold mb-1">{predictedValue?.toFixed(2)}<span className="text-lg font-normal ml-1">{result.prediction?.yieldUnit || "tons"}</span></p>
+                                <p className="text-primary-100 text-xs">{result.saved ? "Saved to your prediction history" : "Quick Check — not saved"}</p>
                             </div>
 
                             {result.saved && result.weather && (
                                 <div className="grid grid-cols-2 gap-3">
-                                    {[
-                                        { label: "Temperature", value: `${result.weather.temperature}°C` },
-                                        { label: "Humidity", value: `${result.weather.humidity}%` },
-                                        { label: "Rainfall", value: `${result.weather.rainfall} mm` },
-                                        { label: "Wind Speed", value: `${result.weather.windSpeed} km/h` }
-                                    ].map((w) => (
+                                    {[{ label: "Temperature", value: `${result.weather.temperature}°C` }, { label: "Humidity", value: `${result.weather.humidity}%` }, { label: "Rainfall", value: `${result.weather.rainfall} mm` }, { label: "Wind Speed", value: `${result.weather.windSpeed} km/h` }].map((w) => (
                                         <div key={w.label} className="bg-gray-50 rounded-xl p-3">
                                             <p className="text-gray-400 text-xs">{w.label}</p>
                                             <p className="text-gray-800 font-semibold text-sm">{w.value}</p>
@@ -385,13 +302,9 @@ const Yield = () => {
             </div>
 
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-100">
-                    <h2 className="text-gray-800 font-bold text-base">Prediction History</h2>
-                </div>
+                <div className="px-6 py-4 border-b border-gray-100"><h2 className="text-gray-800 font-bold text-base">Prediction History</h2></div>
                 {loadingHistory ? (
-                    <div className="p-6 space-y-3">
-                        {[1, 2].map((i) => <div key={i} className="bg-gray-100 rounded-xl h-14 animate-pulse" />)}
-                    </div>
+                    <div className="p-6 space-y-3">{[1, 2].map((i) => <div key={i} className="bg-gray-100 rounded-xl h-14 animate-pulse" />)}</div>
                 ) : history.length === 0 ? (
                     <p className="text-gray-400 text-sm p-6">No saved predictions yet.</p>
                 ) : (
@@ -403,14 +316,9 @@ const Yield = () => {
                                         {p.predictedYield?.toFixed(2)} {p.yieldUnit || "tons"}
                                         {p.crop?.cropName && <span className="text-gray-400 font-normal"> · {p.crop.cropName}</span>}
                                     </p>
-                                    <p className="text-gray-400 text-xs">
-                                        {p.crop?.field?.name ? `${p.crop.field.name} · ` : ""}
-                                        {new Date(p.predictionDate).toLocaleDateString()}
-                                    </p>
+                                    <p className="text-gray-400 text-xs">{p.crop?.field?.name ? `${p.crop.field.name} · ` : ""}{new Date(p.predictionDate).toLocaleDateString()}</p>
                                 </div>
-                                <button onClick={() => handleDelete(p.id)} className="p-1.5 text-gray-400 hover:text-red-500 transition-colors" aria-label="Delete">
-                                    <MdDelete className="text-sm" />
-                                </button>
+                                <button onClick={() => handleDelete(p.id)} className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"><MdDelete className="text-sm" /></button>
                             </div>
                         ))}
                     </div>

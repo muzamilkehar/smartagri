@@ -19,6 +19,8 @@ export const getSoilDataForField = async (fieldId) => {
     }
 };
 
+// ... (Keep the rest of your soilAPI.js exactly as it is)
+
 export const getSoilDataById = async (id) => {
     try {
         const res = await apiClient.get(`/soil-data/${id}`);

@@ -22,6 +22,7 @@ export const predictYieldSaved = async (cropId, usage) => {
     }
 
     try {
+        console.log("Sending yield prediction request with data:", { cropId, ...usage });
         const res = await apiClient.post("/yield/predict", { cropId, ...usage });
         return { success: true, prediction: res.data.data.prediction, weather: res.data.data.weather };
     } catch (error) {
