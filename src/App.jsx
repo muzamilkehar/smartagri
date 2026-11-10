@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -40,6 +41,7 @@ const Layout = ({ children }) => {
 
 function App() {
     return (
+     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}> 
         <AuthProvider>
             <BrowserRouter>
                 <Layout>
@@ -116,6 +118,7 @@ function App() {
                 />
             </BrowserRouter>
         </AuthProvider>
+        </GoogleOAuthProvider>
     );
 }
 
