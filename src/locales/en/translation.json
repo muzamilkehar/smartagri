@@ -1,0 +1,20 @@
+{
+  "welcome": "Welcome Back to Smart Farming",
+  "signInSubtitle": "Sign in to access your dashboard, monitor your crops, and get real-time AI insights for your farm.",
+  "emailLabel": "Email Address",
+  "passwordLabel": "Password",
+  "rememberMe": "Remember Me",
+  "forgotPassword": "Forgot password?",
+  "signInBtn": "Sign In",
+  "orContinueWith": "OR CONTINUE WITH EMAIL",
+  "signInTitle": "Sign in to your account",
+  "noAccount": "Don't have an account?",
+  "createOne": "Create one free",
+  "dashboard": "Dashboard",
+  "myFields": "My Fields",
+  "diseaseDetection": "Disease Detection",
+  "yieldPrediction": "Yield Prediction",
+  "soilMonitoring": "Soil Monitoring",
+  "weatherForecast": "Weather Forecast",
+  "logout": "Logout"
+}

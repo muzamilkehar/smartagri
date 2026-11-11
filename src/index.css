@@ -1,9 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import Google Font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 * {
   margin: 0;
@@ -19,25 +18,16 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Import Google Font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* =========================================
+   RTL (Right-to-Left) Support for Urdu
+   ========================================= */
+html[dir="rtl"] {
+  direction: rtl;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
+/* Optional: Adjust specific Tailwind classes for RTL if needed */
+html[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
 }
 
 /* react-toastify — match SmartAgri theme */

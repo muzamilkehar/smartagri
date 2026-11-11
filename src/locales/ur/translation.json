@@ -1,0 +1,20 @@
+{
+  "welcome": "سمارٹ فارمنگ میں خوش آمدید",
+  "signInSubtitle": "اپنے ڈیش بورڈ تک رسائی حاصل کرنے، اپنی فصلوں کی نگرانی کرنے، اور اپنے فارم کے لیے ریئل ٹائم AI بصیرت حاصل کرنے کے لیے سائن ان کریں۔",
+  "emailLabel": "ای میل ایڈریس",
+  "passwordLabel": "پاس ورڈ",
+  "rememberMe": "مجھے یاد رکھیں",
+  "forgotPassword": "پاس ورڈ بھول گئے؟",
+  "signInBtn": "سائن ان کریں",
+  "orContinueWith": "یا ای میل کے ساتھ جاری رکھیں",
+  "signInTitle": "اپنے اکاؤنٹ میں سائن ان کریں",
+  "noAccount": "اکاؤنٹ نہیں ہے؟",
+  "createOne": "مفت اکاؤنٹ بنائیں",
+  "dashboard": "ڈیش بورڈ",
+  "myFields": "میرے کھیت",
+  "diseaseDetection": "بیماری کی تشخیص",
+  "yieldPrediction": "پیداوار کی پیشن گوئی",
+  "soilMonitoring": "مٹی کی نگرانی",
+  "weatherForecast": "موسم کی پیشن گوئی",
+  "logout": "لاگ آؤٹ"
+}
