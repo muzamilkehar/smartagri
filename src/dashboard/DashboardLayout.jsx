@@ -4,13 +4,15 @@ import { GiPlantSeed, GiWheat } from "react-icons/gi";
 import { 
     MdDashboard, MdOutlineImageSearch, MdWaterDrop,
     MdWbSunny, MdPerson, MdMenu, MdClose, MdPeople,
-    MdTerrain, MdBarChart, MdSettings
+    MdTerrain, MdBarChart, MdSettings, MdSensors // <-- FIXED: Added MdSensors import
 } from "react-icons/md";
 import { FaSignOutAlt, FaUserShield, FaUser } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import LanguageSwitcher from "../components/LanguageSwitcher";
-import AdminIotDevices from "./dashboard/AdminIotDevices";
+
+// Note: You don't need to import AdminIotDevices here. 
+// It should be imported in your App.jsx routing file where you define the <Route>.
 
 const getInitials = (name = "") =>
     name.trim().split(/\s+/).map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "U";
@@ -23,23 +25,23 @@ const DashboardLayout = ({ children }) => {
     const { t } = useTranslation();
 
     const navItems = [
-    { label: "Dashboard",          icon: <MdDashboard />,          path: "/dashboard",                 roles: ["admin", "farmer"] },
-    // Farmer-only tools
-    { label: "My Fields",          icon: <MdTerrain />,            path: "/dashboard/fields",          roles: ["farmer"] },
-    { label: "Disease Detection",  icon: <MdOutlineImageSearch />, path: "/dashboard/disease",         roles: ["farmer"] },
-    { label: "Yield Prediction",   icon: <GiWheat />,              path: "/dashboard/yield",           roles: ["farmer"] },
-    { label: "Soil Monitoring",    icon: <MdWaterDrop />,          path: "/dashboard/soil",            roles: ["farmer"] },
-    { label: "Weather Forecast",   icon: <MdWbSunny />,            path: "/dashboard/weather",         roles: ["farmer"] },
-    
-    // Admin-only tools
-    { label: "User Management",    icon: <MdPeople />,             path: "/dashboard/users",           roles: ["admin"] },
-    { label: "IoT Devices",        icon: <MdSensors />,            path: "/dashboard/iot-devices",     roles: ["admin"] }, // <-- ADD THIS LINE
-    { label: "Platform Analytics", icon: <MdBarChart />,           path: "/dashboard/admin-analytics", roles: ["admin"] },
-    { label: "System Settings",    icon: <MdSettings />,           path: "/dashboard/settings",        roles: ["admin"] },
-    
-    // Shared
-    { label: "Profile",            icon: <MdPerson />,             path: "/dashboard/profile",         roles: ["admin", "farmer"] }
-];
+        { label: t('dashboard', 'Dashboard'),          icon: <MdDashboard />,          path: "/dashboard",                 roles: ["admin", "farmer"] },
+        // Farmer-only tools
+        { label: t('myFields', 'My Fields'),          icon: <MdTerrain />,            path: "/dashboard/fields",          roles: ["farmer"] },
+        { label: t('diseaseDetection', 'Disease Detection'),  icon: <MdOutlineImageSearch />, path: "/dashboard/disease",         roles: ["farmer"] },
+        { label: t('yieldPrediction', 'Yield Prediction'),   icon: <GiWheat />,              path: "/dashboard/yield",           roles: ["farmer"] },
+        { label: t('soilMonitoring', 'Soil Monitoring'),    icon: <MdWaterDrop />,          path: "/dashboard/soil",            roles: ["farmer"] },
+        { label: t('weatherForecast', 'Weather Forecast'),   icon: <MdWbSunny />,            path: "/dashboard/weather",         roles: ["farmer"] },
+        
+        // Admin-only tools
+        { label: t('userManagement', 'User Management'),    icon: <MdPeople />,             path: "/dashboard/users",           roles: ["admin"] },
+        { label: "IoT Devices",        icon: <MdSensors />,            path: "/dashboard/iot-devices",     roles: ["admin"] }, 
+        { label: t('platformAnalytics', 'Platform Analytics'), icon: <MdBarChart />,           path: "/dashboard/admin-analytics", roles: ["admin"] },
+        { label: t('systemSettings', 'System Settings'),    icon: <MdSettings />,           path: "/dashboard/settings",        roles: ["admin"] },
+        
+        // Shared
+        { label: t('profile', 'Profile'),            icon: <MdPerson />,             path: "/dashboard/profile",         roles: ["admin", "farmer"] }
+    ];
 
     const visibleItems = navItems.filter((item) => item.roles.includes(currentUser?.role));
 
