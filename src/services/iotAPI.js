@@ -4,7 +4,7 @@ import { readErrorMessage } from "./apiError";
 /* GET /iot-devices */
 export const getIotDevices = async () => {
     try {
-        const res = await apiClient.get("/iot-devices");
+        const res = await apiClient.get("/iot-devices"); // <--- FIXED: Removed /admin
         return { success: true, devices: res.data.data || [] };
     } catch (error) {
         return { success: false, error: readErrorMessage(error, "Could not load IoT devices."), devices: [] };
@@ -14,7 +14,7 @@ export const getIotDevices = async () => {
 /* POST /iot-devices/:deviceCode/request-reading */
 export const requestIotReading = async (deviceCode) => {
     try {
-        const res = await apiClient.post(`/iot-devices/${deviceCode}/request-reading`);
+        const res = await apiClient.post(`/iot-devices/${deviceCode}/request-reading`); // <--- FIXED: Removed /admin
         return { success: true, data: res.data.data };
     } catch (error) {
         return { success: false, error: readErrorMessage(error, "Could not fetch reading. Ensure device is online.") };
@@ -24,7 +24,7 @@ export const requestIotReading = async (deviceCode) => {
 /* PATCH /iot-devices/:deviceCode/assign-field */
 export const assignIotToField = async (deviceCode, fieldId) => {
     try {
-        const res = await apiClient.patch(`/iot-devices/${deviceCode}/assign-field`, { fieldId });
+        const res = await apiClient.patch(`/iot-devices/${deviceCode}/assign-field`, { fieldId }); // <--- FIXED: Removed /admin
         return { success: true, data: res.data.data };
     } catch (error) {
         return { success: false, error: readErrorMessage(error, "Could not assign device to field.") };

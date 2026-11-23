@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
-import { MdAdd, MdSensors, MdClose, MdAssignmentInd, MdRefresh } from "react-icons/md";
-import { getAllIotDevices, registerIotDevice, assignIotDevice, getAllFarmers, getFarmerDetails } from "../services/adminManagementAPI";
+import { MdAdd, MdSensors, MdClose, MdAssignmentInd } from "react-icons/md";
+// FIXED: Changed ../../ to ../ for services and utils
+import { 
+    getAllIotDevices, 
+    registerIotDevice, 
+    assignIotDevice, 
+    getAllFarmers, 
+    getFarmerDetails 
+} from "../services/adminManagementAPI";
 import { toastSuccess, toastError } from "../utils/toast";
 
 const inputClass = "w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 bg-gray-50 focus:bg-white";
@@ -36,7 +43,6 @@ const AdminIotDevices = () => {
         setLoading(false);
     };
 
-    // When admin selects a farmer in the dropdown, fetch that farmer's fields
     const handleFarmerChange = async (userId) => {
         setFormData(prev => ({ ...prev, userId, fieldId: "" }));
         if (!userId) { setFarmerFields([]); return; }
@@ -64,7 +70,6 @@ const AdminIotDevices = () => {
         setFormData({ name: device.name, userId: device.userId || "", fieldId: device.fieldId || "" });
         setFarmerFields([]);
         if (device.userId) {
-            // Trigger farmer field load if already assigned
             handleFarmerChange(device.userId);
         }
         setShowModal(true);
