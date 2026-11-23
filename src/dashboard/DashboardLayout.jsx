@@ -10,7 +10,7 @@ import { FaSignOutAlt, FaUserShield, FaUser } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import LanguageSwitcher from "../components/LanguageSwitcher";
-import AdminIotDeviceMonitor from "../components/AdminIotDeviceMonitor";
+import AdminIotDevices from "./dashboard/AdminIotDevices";
 
 const getInitials = (name = "") =>
     name.trim().split(/\s+/).map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "U";
