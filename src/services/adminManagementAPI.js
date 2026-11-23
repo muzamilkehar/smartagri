@@ -88,7 +88,7 @@
     /* GET /admin/iot-devices */
     export const getAllIotDevices = async () => {
         try {
-            const res = await apiClient.get("/admin/iot-devices");
+            const res = await apiClient.get("/iot-devices");
             return { success: true, devices: res.data.data || [] };
         } catch (error) {
             return { success: false, error: readErrorMessage(error, "Could not load IoT devices."), devices: [] };
