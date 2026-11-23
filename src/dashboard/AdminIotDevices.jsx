@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { MdAdd, MdSensors, MdClose, MdAssignmentInd, MdRefresh } from "react-icons/md";
-import { getAllIotDevices, registerIotDevice, assignIotDevice, getAllFarmers, getFarmerDetails } from "../../services/adminManagementAPI";
-import { toastSuccess, toastError } from "../../utils/toast";
+import { getAllIotDevices, registerIotDevice, assignIotDevice, getAllFarmers, getFarmerDetails } from "../services/adminManagementAPI";
+import { toastSuccess, toastError } from "../utils/toast";
 
 const inputClass = "w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 bg-gray-50 focus:bg-white";
 const labelClass = "text-xs font-medium text-gray-500 uppercase tracking-wide mb-1 block";
