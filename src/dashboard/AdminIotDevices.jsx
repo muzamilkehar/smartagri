@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import { MdAdd, MdSensors, MdEdit, MdClose, MdAssignmentInd } from "react-icons/md";
-import { getAllIotDevices, registerIotDevice, assignIotDevice } from "../../services/adminManagementAPI";
-import { getAllFarmers, getFarmerDetails } from "../../services/adminManagementAPI"; // Assuming you have these
-import { getFields } from "../../services/fieldAPI"; // To get fields for a farmer
+import { MdAdd, MdSensors, MdClose, MdAssignmentInd, MdRefresh } from "react-icons/md";
+import { getAllIotDevices, registerIotDevice, assignIotDevice, getAllFarmers, getFarmerDetails } from "../../services/adminManagementAPI";
 import { toastSuccess, toastError } from "../../utils/toast";
 
 const inputClass = "w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 bg-gray-50 focus:bg-white";
@@ -43,7 +41,6 @@ const AdminIotDevices = () => {
         setFormData(prev => ({ ...prev, userId, fieldId: "" }));
         if (!userId) { setFarmerFields([]); return; }
         
-        // Find the farmer ID (the API might return user_id or farmer_profile_id)
         const farmer = farmers.find(f => f.user?.id === userId);
         if (farmer) {
             const details = await getFarmerDetails(farmer.id);
@@ -64,8 +61,12 @@ const AdminIotDevices = () => {
     const openAssignModal = (device) => {
         setModalMode("assign");
         setSelectedDevice(device);
-        setFormData({ name: device.name, userId: "", fieldId: device.fieldId || "" });
+        setFormData({ name: device.name, userId: device.userId || "", fieldId: device.fieldId || "" });
         setFarmerFields([]);
+        if (device.userId) {
+            // Trigger farmer field load if already assigned
+            handleFarmerChange(device.userId);
+        }
         setShowModal(true);
     };
 

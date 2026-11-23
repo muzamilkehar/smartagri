@@ -4,15 +4,12 @@ import { GiPlantSeed, GiWheat } from "react-icons/gi";
 import { 
     MdDashboard, MdOutlineImageSearch, MdWaterDrop,
     MdWbSunny, MdPerson, MdMenu, MdClose, MdPeople,
-    MdTerrain, MdBarChart, MdSettings, MdSensors // <-- FIXED: Added MdSensors import
+    MdTerrain, MdBarChart, MdSettings, MdSensors // <-- Fixed: Added MdSensors
 } from "react-icons/md";
 import { FaSignOutAlt, FaUserShield, FaUser } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import LanguageSwitcher from "../components/LanguageSwitcher";
-
-// Note: You don't need to import AdminIotDevices here. 
-// It should be imported in your App.jsx routing file where you define the <Route>.
 
 const getInitials = (name = "") =>
     name.trim().split(/\s+/).map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "U";
@@ -158,7 +155,6 @@ const DashboardLayout = ({ children }) => {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        {/* Language Switcher in Dashboard */}
                         <div className="hidden sm:block">
                             <LanguageSwitcher />
                         </div>
