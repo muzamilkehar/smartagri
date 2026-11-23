@@ -21,6 +21,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ResetPassword from "./pages/resetPassword";
 import AdminAnalytics from "./dashboard/AdminAnalytics";
 import SystemSettings from "./dashboard/SystemSettings";
+import AdminIotDevices from "./dashboard/AdminIotDevices";
 
 /* Hide Navbar on auth pages */
 const Layout = ({ children }) => {
@@ -103,6 +104,14 @@ function App() {
                                 <DashboardLayout><SystemSettings /></DashboardLayout>
                             </ProtectedRoute>
                         } />
+
+                        <Route path="/dashboard/iot-devices" element={
+                        <ProtectedRoute adminOnly>
+                            <DashboardLayout>
+                                <AdminIotDevices />
+                            </DashboardLayout>
+                        </ProtectedRoute>
+                         } />
                     </Routes>
                 </Layout>
 

@@ -82,3 +82,35 @@ export const deleteSystemSetting = async (key) => {
         return { success: false, error: readErrorMessage(error, "Could not delete setting.") };
     }
 };
+
+// ... existing imports and functions ...
+
+/* GET /admin/iot-devices */
+export const getAllIotDevices = async () => {
+    try {
+        const res = await apiClient.get("/admin/iot-devices");
+        return { success: true, devices: res.data.data || [] };
+    } catch (error) {
+        return { success: false, error: readErrorMessage(error, "Could not load IoT devices."), devices: [] };
+    }
+};
+
+/* POST /admin/iot-devices/register */
+export const registerIotDevice = async (name, userId, fieldId) => {
+    try {
+        const res = await apiClient.post("/admin/iot-devices/register", { name, userId, fieldId });
+        return { success: true, device: res.data.device };
+    } catch (error) {
+        return { success: false, error: readErrorMessage(error, "Could not register device.") };
+    }
+};
+
+/* PATCH /admin/iot-devices/:deviceCode/assign */
+export const assignIotDevice = async (deviceCode, userId, fieldId) => {
+    try {
+        const res = await apiClient.patch(`/admin/iot-devices/${deviceCode}/assign`, { userId, fieldId });
+        return { success: true, device: res.data.data };
+    } catch (error) {
+        return { success: false, error: readErrorMessage(error, "Could not assign device.") };
+    }
+};
